@@ -52,46 +52,52 @@ const getChainConfig = (chain: Chains): NetworkUserConfig => {
 const config: IConfig = {
   solidity: {
     version: "0.8.4",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
   },
+
   networks: {
-    [Chains.RINKEBY as string]: {
-      url: process.env.RINKEBY_CHAIN_URL as string,
-      accounts: [process.env.RINKEBY_PRIVATE_KEY as string],
-      chainId: Number(process.env.RINKEBY_CHAIN_ID as string),
+    [Chains.RINKEBY as string]: getChainConfig(Chains.RINKEBY),
+    [Chains.BSC_TEST as string]: getChainConfig(Chains.BSC_TEST),
+    [Chains.HARDHAT as string]: {
       forking: {
         enabled: true,
         url: process.env.RINKEBY_CHAIN_URL as string,
         blockNumber: 10330361,
       },
     },
-    [Chains.BSC_TEST as string]: getChainConfig(Chains.BSC_TEST),
-    [Chains.HARDHAT as string]: {
-      forking: {
-        enabled: true,
-        url: process.env.HARDHAT_CHAIN_URL as string,
-        blockNumber: 10330361,
-      },
-      chainId: Number(process.env.HARDHAT_CHAIN_ID as string),
-      allowUnlimitedContractSize: true,
-    },
   },
-  gasReporter: {
-    enabled: reportGas,
-    currency: "USD",
-    src: "./contracts",
-  },
+
   paths: {
     artifacts: "./artifacts",
     cache: "./cache",
     sources: "./contracts",
     tests: "./test",
   },
-
   etherscan: {
     apiKey: ethApiKey,
   },
   mocha: {
     timeout: 500000,
+  },
+  typechain: {
+    outDir: "src/types",
+    target: "ethers-v5",
+  },
+  contractSizer: {
+    alphaSort: true,
+    disambiguatePaths: false,
+    runOnCompile: true,
+    strict: false,
+  },
+  gasReporter: {
+    enabled: reportGas,
+    currency: "USD",
+    src: "./contracts",
   },
 };
 

@@ -8,6 +8,7 @@ import ArgumentsWETH from "../../arguments/wETH";
 import ArgumentsAdapter from "../../arguments/Adapter";
 import viewFunctions from "./ADAPTERviewFunctions";
 import createFunctions from "./ADAPTERcreateFunctions";
+import abiFactory from "../../abi/UniswapFactory";
 
 export default describe("Adapter contract testing", async function () {
   before(async function () {
@@ -19,13 +20,17 @@ export default describe("Adapter contract testing", async function () {
     this.argumentsACDM = ArgumentsACDM;
     this.argumentsWETH = ArgumentsWETH;
     this.argumentsAdapter = ArgumentsAdapter;
+    this.testMinAmount1 = "50000000";
+    this.testMinAmount2 = "60000000";
+    this.testAmount1 = "100000000";
+    this.testAmount2 = "130000000";
   });
 
   beforeEach(async function () {
     const artifactEthToken: Artifact = await artifacts.readArtifact(
       "TokenERC20"
     );
-    const artifacAdapter: Artifact = await artifacts.readArtifact(
+    const artifactAdapter: Artifact = await artifacts.readArtifact(
       "UniswapAdapter"
     );
     const artifacWETH: Artifact = await artifacts.readArtifact("wEth");
@@ -51,8 +56,13 @@ export default describe("Adapter contract testing", async function () {
     );
     this.instanceAdapter = await waffle.deployContract(
       this.owner,
-      artifacAdapter,
+      artifactAdapter,
       ArgumentsAdapter
+    );
+    this.factory = await ethers.getContractAt(
+      abiFactory,
+      process.env.FACTORY_ADDRESS as string,
+      this.owner
     );
   });
   viewFunctions();

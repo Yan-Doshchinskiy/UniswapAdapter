@@ -13,14 +13,14 @@ contract wEth is ERC20, Ownable {
         _mint(_to, _amount);
         if (_amount < msg.value) {
             (bool done, ) = payable(msg.sender).call{value: msg.value - _amount}("");
-            require(done, "wETH: adress.call failed");
+            require(done, "wETH: Deposit transaction failed");
         }
     }
 
     function withdraw(uint256 _amount) public {
         _burn(msg.sender, _amount);
         (bool success,) = payable(msg.sender).call{value: _amount}("");
-        require(success, "wETH: Withdraw transaction failed.");
+        require(success, "wETH: Withdraw transaction failed");
     }
 
     function transfer(address _to, uint256 _amount)
