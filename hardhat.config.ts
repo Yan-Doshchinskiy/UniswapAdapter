@@ -54,8 +54,26 @@ const config: IConfig = {
     version: "0.8.4",
   },
   networks: {
-    [Chains.RINKEBY as string]: getChainConfig(Chains.RINKEBY),
+    [Chains.RINKEBY as string]: {
+      url: process.env.RINKEBY_CHAIN_URL as string,
+      accounts: [process.env.RINKEBY_PRIVATE_KEY as string],
+      chainId: Number(process.env.RINKEBY_CHAIN_ID as string),
+      forking: {
+        enabled: true,
+        url: process.env.RINKEBY_CHAIN_URL as string,
+        blockNumber: 10330361,
+      },
+    },
     [Chains.BSC_TEST as string]: getChainConfig(Chains.BSC_TEST),
+    [Chains.HARDHAT as string]: {
+      forking: {
+        enabled: true,
+        url: process.env.HARDHAT_CHAIN_URL as string,
+        blockNumber: 10330361,
+      },
+      chainId: Number(process.env.HARDHAT_CHAIN_ID as string),
+      allowUnlimitedContractSize: true,
+    },
   },
   gasReporter: {
     enabled: reportGas,

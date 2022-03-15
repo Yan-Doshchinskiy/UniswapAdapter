@@ -5,9 +5,12 @@ export enum Roles {
 export enum Chains {
   RINKEBY = "rinkeby",
   BSC_TEST = "bscTestnet",
+  HARDHAT = "hardhat",
 }
 
 export enum ChainEnv {
   "rinkeby" = "RINKEBY",
   "bscTestnet" = "BSC_TEST",
+  "hardhat" = "HARDHAT",
+
 }

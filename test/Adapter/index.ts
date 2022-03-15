@@ -28,6 +28,7 @@ export default describe("Adapter contract testing", async function () {
     const artifacAdapter: Artifact = await artifacts.readArtifact(
       "UniswapAdapter"
     );
+    const artifacWETH: Artifact = await artifacts.readArtifact("wEth");
     this.instanceTST = await waffle.deployContract(
       this.owner,
       artifactEthToken,
@@ -45,7 +46,7 @@ export default describe("Adapter contract testing", async function () {
     );
     this.instanceWETH = await waffle.deployContract(
       this.owner,
-      artifactEthToken,
+      artifacWETH,
       ArgumentsWETH
     );
     this.instanceAdapter = await waffle.deployContract(
