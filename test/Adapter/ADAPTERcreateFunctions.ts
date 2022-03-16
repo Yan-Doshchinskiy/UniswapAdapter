@@ -4,14 +4,13 @@ import { ethers } from "hardhat";
 
 export default (): void => {
   it(`ADAPTER-CREATE: createPair, allPairsLength and getTokensPair functions works correctly`, async function (): Promise<void> {
-    const initLength = await this.factory.allPairsLength();
-    const newPair = await this.factory.createPair(
+    const initLength = await this.instanceAdapter.allPairsLength();
+    const newPair = await this.instanceAdapter.createPair(
       this.instanceTST.address,
       this.instanceACDM.address
     );
-    const length = await this.factory.allPairsLength();
-
-    const pair = await this.factory.getTokensPair(
+    const length = await this.instanceAdapter.allPairsLength();
+    const pair = await this.instanceAdapter.getTokensPair(
       this.instanceTST.address,
       this.instanceACDM.address
     );
@@ -35,9 +34,25 @@ export default (): void => {
       this.testMinAmount1,
       this.testMinAmount2,
       this.owner.address,
-      "3600"
+      this.timeLimit
     );
     const { events } = tx.wait();
+    await expect(
+      await this.instanceAdapter
+        .connect(this.dan)
+        .getAmountsOut(this.testAmount1, [
+          this.instanceTST.address,
+          this.instanceACDM.address,
+        ])
+    ).to.be.ok;
+    await expect(
+      await this.instanceAdapter
+        .connect(this.dan)
+        .getAmountsIn(this.testMinAmount1, [
+          this.instanceTST.address,
+          this.instanceACDM.address,
+        ])
+    ).to.be.ok;
     const { args } = events.find(
       ({ event }: { event: any }) => event === "LiquidityProvided"
     );
@@ -60,7 +75,7 @@ export default (): void => {
       this.testMinAmount1,
       this.testMinAmount2,
       this.owner.address,
-      "3600"
+      this.timeLimit
     );
     const { events: events2 } = tx2.wait();
     const { args: args2 } = events2.find(

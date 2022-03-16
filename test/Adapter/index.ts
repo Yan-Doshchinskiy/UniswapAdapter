@@ -24,6 +24,7 @@ export default describe("Adapter contract testing", async function () {
     this.testMinAmount2 = "60000000";
     this.testAmount1 = "100000000";
     this.testAmount2 = "130000000";
+    this.timeLimit = Math.floor(Date.now() / 1000) + 50000;
   });
 
   beforeEach(async function () {
