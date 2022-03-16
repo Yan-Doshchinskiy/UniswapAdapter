@@ -91,7 +91,7 @@ contract UniswapAdapter {
     {
         address pairAddress = IUniswapV2Factory(factoryAddress).createPair(tokenOne, tokenTwo);
         emit PairCreated(pairAddress, tokenOne, tokenTwo);
-        return tokenOne;
+        return pairAddress;
     }
 
     /**
