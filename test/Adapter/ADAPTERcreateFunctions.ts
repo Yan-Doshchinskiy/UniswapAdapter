@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { BigNumber } from "ethers";
+import { BigNumber, Event } from "ethers";
 import { ethers } from "hardhat";
 
 export default (): void => {
@@ -14,7 +14,11 @@ export default (): void => {
       this.instanceTST.address,
       this.instanceACDM.address
     );
-    expect(pair).to.equal(newPair);
+    const { events: events1 } = await newPair.wait();
+    const { args: args1 } = events1.find(
+      (it: Event) => it.event === "PairCreated"
+    );
+    expect(pair).to.equal(args1.pair);
     expect(initLength).to.be.equal(BigNumber.from(length).sub(1));
     await this.instanceTST.mint(this.owner.address, this.testAmount1);
     await this.instanceACDM.mint(this.owner.address, this.testAmount2);
@@ -36,9 +40,9 @@ export default (): void => {
       this.owner.address,
       this.timeLimit
     );
-    const { events } = tx.wait();
+    const { events: events2 } = await tx.wait();
     await expect(
-      await this.instanceAdapter
+      this.instanceAdapter
         .connect(this.dan)
         .getAmountsOut(this.testAmount1, [
           this.instanceTST.address,
@@ -46,48 +50,57 @@ export default (): void => {
         ])
     ).to.be.ok;
     await expect(
-      await this.instanceAdapter
+      this.instanceAdapter
         .connect(this.dan)
         .getAmountsIn(this.testMinAmount1, [
           this.instanceTST.address,
           this.instanceACDM.address,
         ])
     ).to.be.ok;
-    const { args } = events.find(
+    const { args } = events2.find(
       ({ event }: { event: any }) => event === "LiquidityProvided"
     );
-    const { _amountOne, _amountTwo, _liquidityAmount } = args;
-    expect(_amountOne).to.be.lessThanOrEqual(this.testAmount1);
-    expect(_amountOne).to.be.greaterThanOrEqual(this.testMinAmount1);
-    expect(_amountTwo).to.be.lessThanOrEqual(this.testAmount2);
-    expect(_amountTwo).to.be.greaterThanOrEqual(this.testMinAmount2);
-    console.log("_liquidityAmount", _liquidityAmount);
+    const { amountOne, amountTwo, amountLiquidity } = args;
+    expect(Number(amountOne)).to.be.lessThanOrEqual(Number(this.testAmount1));
+    expect(Number(amountOne)).to.be.greaterThanOrEqual(
+      Number(this.testMinAmount1)
+    );
+    expect(Number(amountTwo)).to.be.lessThanOrEqual(Number(this.testAmount2));
+    expect(Number(amountTwo)).to.be.greaterThanOrEqual(
+      Number(this.testMinAmount2)
+    );
+    console.log("args1.pair", args1.pair);
     const pairInstance = await ethers.getContractAt(
       "TokenERC20",
-      newPair,
+      args1.pair,
       this.owner
     );
-    await pairInstance.approve(this.instanceAdapter, _liquidityAmount);
+    await pairInstance.approve(this.instanceAdapter.address, amountLiquidity);
     const tx2 = await this.instanceAdapter.removeLiquidity(
       this.instanceTST.address,
       this.instanceACDM.address,
-      _liquidityAmount,
+      amountLiquidity,
       this.testMinAmount1,
       this.testMinAmount2,
       this.owner.address,
       this.timeLimit
     );
-    const { events: events2 } = tx2.wait();
-    const { args: args2 } = events2.find(
+    const { events: events3 } = await tx2.wait();
+    const { args: args2 } = events3.find(
       ({ event }: { event: any }) => event === "LiquidityRemoved"
     );
     const {
-      _amountOne: _amountOne2,
-      _amountTwo: _amountTwo2,
-      liquidityAmount: liquidityAmount2,
+      amountOne: amountOne2,
+      amountTwo: amountTwo2,
+      amountLiquidity: amountLiquidity2,
     } = args2;
-    expect(_amountOne2).to.be.greaterThanOrEqual(this.testMinAmount1);
-    expect(_amountTwo2).to.be.greaterThanOrEqual(this.testMinAmount2);
-    console.log("liquidityAmount2", liquidityAmount2);
+    console.log("args2", args2);
+    // console.log(args2);
+    expect(Number(amountOne2)).to.be.greaterThanOrEqual(
+      Number(this.testMinAmount1)
+    );
+    expect(Number(amountTwo2)).to.be.greaterThanOrEqual(
+      Number(this.testMinAmount2)
+    );
   });
 };
